@@ -22,7 +22,7 @@ keywords:
 
 # DBMS
 
-![alt text](images/image.png)
+![alt text](images/image.webp)
 
 <div style="position:relative;width:100%;padding-bottom:56.25%;height:0;">
   <iframe
@@ -53,6 +53,8 @@ keywords:
 *   **Structure:** Stores data in the form of **tables** (rows and columns) compared to DBMS which stores data as files.
 *   **Utility:** Storing data as rows and columns makes it easier to locate specific values in the database and makes it more efficient compared to DBMS.
 *   **Examples:** MySQL, Oracle DB, etc.
+
+![alt text](images/image-1.webp)
 
 ### 2. What is meant by a database?
 
@@ -86,6 +88,8 @@ keywords:
 *   **Data Security:** Provides necessary tools to make storage and transfer reliable and secure.
     *   **Authentication:** The process of giving restricted access to a user.
     *   **Encryption:** Encrypting sensitive data such as OTP, credit card information, etc.
+
+![alt text](images/image-2.webp)
 
 ### 5. Explain different languages present in DBMS.
 
@@ -124,11 +128,27 @@ ACID properties ensure a safe and secure way of sharing data among multiple user
 *   **A - Atomicity:**
     *   Reflects the concept of either executing the **whole query** or executing **nothing at all**.
     *   If an update occurs, it should either be reflected in the whole database or not reflected at all.
+    *   In this Example
+        *   ![alt text](images/image-3.webp)
+            *   Partial Execution
+            *   No Atomicity
+            *   Execution Termination
+    *   In this Example
+        *   ![alt text](images/image-4.webp)
+            *   Complete Execution
+            *   Atomicity
+            *   Execution Successfull
 *   **C - Consistency:**
     *   Ensures that data remains consistent before and after a transaction.
+    *   In this Example
+        *   ![alt text](images/image-5.webp)
+            *   Data is Consistent
 *   **I - Isolation:**
     *   Ensures each transaction occurs independently of others.
     *   The state of an ongoing transaction does not affect the state of another ongoing transaction.
+    *   In this Example
+        *   ![alt text](images/image-6.webp)
+            *   Isolation, Independent Execution T1 and T2 by A
 *   **D - Durability:**
     *   Ensures data is not lost in cases of system failure or restart.
     *   Data is present in the same state as it was before the failure/restart.
@@ -195,6 +215,9 @@ flowchart LR
     style Analytics fill:#2d3748,stroke:#4a90e2,color:#fff
     style Decision fill:#276749,stroke:#48bb78,color:#fff
 ```
+
+![alt text](images/image-7.webp)
+
 ### 9. Explain different levels of data abstraction in a DBMS.
 
 Data abstraction is the process of hiding irrelevant details from users. It is divided into 3 levels:
@@ -252,12 +275,22 @@ flowchart TB
 *   **Entity Set:** A set of **all** the entities present in a specific entity type in a database.
     *   *Example:* A set of all students, employees, teachers, etc.
 
+Example: Student Management System Sample
+![alt text](images/image-9.webp)
+
+Example: Hospital Management System Sample
+![alt text](images/image-8.webp)
+
 ### 11. Explain different types of relationships amongst tables in a DBMS.
 
 *   **One to One Relationship:** Applied when a particular row in table X is linked to a **singular** row in table Y.
+    *   ![alt text](images/image-10.webp)
 *   **One to Many Relationship:** Applied when a **single** row in table X is related to **many** rows in table Y.
+    *   ![alt text](images/image-11.webp)
 *   **Many to Many Relationship:** Applied when **multiple** rows in table X can be linked to **multiple** rows in table Y.
+    *   ![alt text](images/image-12.webp)
 *   **Self Referencing Relationship:** Applied when a particular row in table X is associated with the **same** table.
+    *   ![alt text](images/image-13.webp)
 
 ```mermaid
 erDiagram
@@ -381,6 +414,11 @@ stateDiagram-v2
 
 ### 16. Explain different types of Normalization forms in a DBMS.
 
+![alt text](images/image-14.webp)
+
+Reference Example Sample:
+![alt text](images/image-15.webp)
+
 **1. First Normal Form (1NF)**
 *   Simplest type. Conditions:
     *   Every column must have a **single value** and should be **atomic**.
@@ -388,16 +426,29 @@ stateDiagram-v2
     *   Separate tables should be created for each group of related data.
     *   Each row should be identified with a **unique column**.
 
+Sample's 1NF form:
+![alt text](images/image-16.webp)
+
 **2. Second Normal Form (2NF)**
 *   Conditions:
     *   Table must be in **1NF**.
     *   Every **non-prime attribute** should be **fully functionally dependent** on the primary key.
     *   *Explanation:* Every non-key attribute must depend on the primary key such that if any key element is deleted, the non-key element will be saved.
 
+Sample's 2NF form:
+![alt text](images/image-17.webp)
+![alt text](images/image-18.webp)
+
+
 **3. Third Normal Form (3NF)**
 *   Conditions:
     *   Table must be in **2NF**.
     *   There is **no transitive functional dependency** of one attribute on any attribute in the same table.
+
+Sample's 3NF form:
+![alt text](images/image-20.webp)
+![alt text](images/image-21.webp)
+![alt text](images/image-19.webp)
 
 **4. Boyce-Codd Normal Form (BCNF) / 3.5NF**
 *   Advanced form of 3NF. Conditions:
@@ -472,6 +523,10 @@ flowchart TB
     style COMP fill:#2d3748,stroke:#4a90e2,color:#fff
 ```
 
+![alt text](images/image-22.webp)
+
+![alt text](images/image-23.webp)
+
 ### 18. Explain the difference between a 2-tier and 3-tier architecture in a DBMS.
 
 **2-Tier Architecture**
@@ -480,12 +535,16 @@ flowchart TB
 *   **No middleware** involved.
 *   **Examples:** Contact Management System created using MS-Access, Railway Reservation System.
 
+![alt text](images/image-24.webp)
+
 **3-Tier Architecture**
 *   Contains another layer (**Middleware**) between the client and the server.
 *   Provides **GUI** to users.
 *   Makes the system much more secure and accessible.
 *   **Flow:** Client Application <-> Server Application <-> Database System.
 *   **Examples:** Designing registration forms (text box, label, button), large websites on the Internet.
+
+![alt text](images/image-25.webp)
 
 ```mermaid
 flowchart TB
