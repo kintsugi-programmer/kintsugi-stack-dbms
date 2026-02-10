@@ -1,3 +1,25 @@
+---
+title: DBMS Database Management Systems
+description: A structured guide covering fundamental to advanced DBMS concepts including relational databases, ACID properties, normalization, entity-relationship modeling, transaction management, and database architecture patterns.
+keywords:
+  - database management system
+  - DBMS fundamentals
+  - RDBMS concepts
+  - ACID properties
+  - database normalization
+  - entity relationship model
+  - database keys
+  - SQL languages DDL DML DCL TCL
+  - database transactions
+  - data abstraction levels
+  - normalization forms 1NF 2NF 3NF BCNF
+  - database architecture
+  - data warehousing
+  - shared lock exclusive lock
+  - database schema design
+  - relational database theory
+---
+
 # DBMS
 
 ![alt text](images/image.png)
