@@ -111,6 +111,28 @@ ACID properties ensure a safe and secure way of sharing data among multiple user
     *   Ensures data is not lost in cases of system failure or restart.
     *   Data is present in the same state as it was before the failure/restart.
 
+```mermaid
+flowchart LR
+    Start([Transaction Start]) --> A{Atomicity Check}
+    A -->|All Operations| C{Consistency Check}
+    A -->|Partial Failure| Rollback[Rollback All]
+    C -->|Valid State| I[Isolation Applied]
+    C -->|Invalid State| Rollback
+    I --> Execute[Execute Transaction]
+    Execute --> D[Durability Ensured]
+    D --> Commit([Commit Success])
+    Rollback --> Abort([Transaction Aborted])
+    style Start fill:#2d3748,stroke:#4a90e2,color:#fff
+    style Commit fill:#276749,stroke:#48bb78,color:#fff
+    style Abort fill:#742a2a,stroke:#f56565,color:#fff
+    style A fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style C fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style I fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Execute fill:#2c5282,stroke:#4a90e2,color:#fff
+    style D fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Rollback fill:#742a2a,stroke:#f56565,color:#fff
+```
+
 ### 7. Are NULL values in a database the same as that of blank space or zero?
 
 *   **No**, a **NULL** value is very different from zero and blank space.
@@ -131,7 +153,26 @@ ACID properties ensure a safe and secure way of sharing data among multiple user
     *   Used for data analytics.
     *   Comprises a wide variety of an organization’s historical data.
     *   Supports the decision-making process in an organization.
-
+```mermaid
+flowchart LR
+    S1[(Transactional DB)] --> Extract[Extract]
+    S2[(Relational DB)] --> Extract
+    S3[(External Sources)] --> Extract
+    Extract --> Transform[Transform]
+    Transform --> Load[Load]
+    Load --> DW[(Data Warehouse)]
+    DW --> Analytics[Data Analytics]
+    Analytics --> Decision[Decision Making]
+    style S1 fill:#1a365d,stroke:#4a90e2,color:#fff
+    style S2 fill:#1a365d,stroke:#4a90e2,color:#fff
+    style S3 fill:#1a365d,stroke:#4a90e2,color:#fff
+    style Extract fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Transform fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Load fill:#2c5282,stroke:#4a90e2,color:#fff
+    style DW fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style Analytics fill:#2d3748,stroke:#4a90e2,color:#fff
+    style Decision fill:#276749,stroke:#48bb78,color:#fff
+```
 ### 9. Explain different levels of data abstraction in a DBMS.
 
 Data abstraction is the process of hiding irrelevant details from users. It is divided into 3 levels:
@@ -147,6 +188,33 @@ Data abstraction is the process of hiding irrelevant details from users. It is d
     *   Describes only part of the database.
     *   Hides details of table schema and physical storage from users.
     *   **Example:** The result of a query is View level data abstraction. A **view** is a virtual table created by selecting fields from one or more tables.
+
+```mermaid
+flowchart TB
+    subgraph External["External/View Level"]
+        V1[View 1]
+        V2[View 2]
+        V3[View N]
+    end
+    subgraph Conceptual["Conceptual/Logical Level"]
+        L1[Tables & Relationships]
+        L2[Schema Definitions]
+    end
+    subgraph Physical["Physical Level"]
+        P1[Data Storage]
+        P2[File Structures]
+        P3[Indexing]
+    end
+    V1 --> L1
+    V2 --> L1
+    V3 --> L2
+    L1 --> P1
+    L2 --> P2
+    L2 --> P3
+    style External fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style Conceptual fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Physical fill:#1a365d,stroke:#4a90e2,color:#fff
+```
 
 ### 10. What is meant by an entity-relationship (E-R) model? Explain the terms Entity, Entity Type, and Entity Set in DBMS.
 
@@ -168,6 +236,48 @@ Data abstraction is the process of hiding irrelevant details from users. It is d
 *   **One to Many Relationship:** Applied when a **single** row in table X is related to **many** rows in table Y.
 *   **Many to Many Relationship:** Applied when **multiple** rows in table X can be linked to **multiple** rows in table Y.
 *   **Self Referencing Relationship:** Applied when a particular row in table X is associated with the **same** table.
+
+```mermaid
+erDiagram
+    USER ||--|| PROFILE : "One-to-One"
+    USER {
+        int userId PK
+        string name
+    }
+    PROFILE {
+        int profileId PK
+        int userId FK
+        string bio
+    }
+    
+    CUSTOMER ||--o{ ORDER : "One-to-Many"
+    CUSTOMER {
+        int customerId PK
+        string customerName
+    }
+    ORDER {
+        int orderId PK
+        int customerId FK
+        date orderDate
+    }
+    
+    STUDENT }o--o{ COURSE : "Many-to-Many"
+    STUDENT {
+        int studentId PK
+        string studentName
+    }
+    COURSE {
+        int courseId PK
+        string courseName
+    }
+    
+    EMPLOYEE ||--o{ EMPLOYEE : "Self-Referencing"
+    EMPLOYEE {
+        int employeeId PK
+        string employeeName
+        int managerId FK
+    }
+```
 
 ### 12. Explain the difference between intension and extension in a database.
 
@@ -207,6 +317,29 @@ Data abstraction is the process of hiding irrelevant details from users. It is d
 *   Required for any transaction about to perform a **write** operation.
 *   Does **not** allow more than one transaction.
 *   Prevents inconsistency in the database.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Unlocked
+    Unlocked --> SharedLock : Read Request
+    Unlocked --> ExclusiveLock : Write Request
+    SharedLock --> SharedLock : More Read Requests
+    SharedLock --> Unlocked : All Reads Complete
+    SharedLock --> Waiting : Write Request
+    ExclusiveLock --> Unlocked : Write Complete
+    Waiting --> ExclusiveLock : Shared Lock Released
+    ExclusiveLock --> [*]
+    
+    note right of SharedLock
+        Multiple transactions
+        can read simultaneously
+    end note
+    
+    note right of ExclusiveLock
+        Only one transaction
+        can write at a time
+    end note
+```
 
 ### 15. What is meant by normalization and denormalization?
 
@@ -250,6 +383,20 @@ Data abstraction is the process of hiding irrelevant details from users. It is d
     *   For every functional dependency `A -> B`, **A** should be the **super key** of the table.
     *   *Implication:* A can't be a non-prime attribute if B is a prime attribute.
 
+```mermaid
+flowchart LR
+    Unnormalized[Unnormalized Data] --> 1NF
+    1NF["1NF<br/>Atomic Values<br/>Unique Rows"] --> 2NF
+    2NF["2NF<br/>1NF +<br/>Full Functional Dependency"] --> 3NF
+    3NF["3NF<br/>2NF +<br/>No Transitive Dependency"] --> BCNF
+    BCNF["BCNF<br/>3NF +<br/>Determinant is Super Key"]
+    style Unnormalized fill:#742a2a,stroke:#f56565,color:#fff
+    style 1NF fill:#2c5282,stroke:#4a90e2,color:#fff
+    style 2NF fill:#2c5282,stroke:#4a90e2,color:#fff
+    style 3NF fill:#2c5282,stroke:#4a90e2,color:#fff
+    style BCNF fill:#276749,stroke:#48bb78,color:#fff
+```
+
 ### 17. Explain different types of keys in a database.
 
 **1. Candidate Key**
@@ -284,6 +431,25 @@ Data abstraction is the process of hiding irrelevant details from users. It is d
 *   A combination of **two or more columns** that can uniquely identify each tuple in a table.
 *   *Example:* Grouping `studentId` and `firstname`.
 
+```mermaid
+flowchart TB
+    SK[Super Key<br/>All Possible Combinations] --> CK
+    CK[Candidate Key<br/>Minimal Super Key] --> PK
+    CK --> AK
+    PK[Primary Key<br/>Selected Candidate<br/>No NULL] --> UK
+    AK[Alternate Key<br/>Non-selected Candidates]
+    UK[Unique Key<br/>Like Primary<br/>Allows NULL]
+    FK[Foreign Key<br/>References Primary Key<br/>in Another Table]
+    COMP[Composite Key<br/>Multiple Columns Combined]
+    style SK fill:#1a365d,stroke:#4a90e2,color:#fff
+    style CK fill:#2c5282,stroke:#4a90e2,color:#fff
+    style PK fill:#276749,stroke:#48bb78,color:#fff
+    style AK fill:#2c5282,stroke:#4a90e2,color:#fff
+    style UK fill:#2c5282,stroke:#4a90e2,color:#fff
+    style FK fill:#744210,stroke:#ed8936,color:#fff
+    style COMP fill:#2d3748,stroke:#4a90e2,color:#fff
+```
+
 ### 18. Explain the difference between a 2-tier and 3-tier architecture in a DBMS.
 
 **2-Tier Architecture**
@@ -298,3 +464,28 @@ Data abstraction is the process of hiding irrelevant details from users. It is d
 *   Makes the system much more secure and accessible.
 *   **Flow:** Client Application <-> Server Application <-> Database System.
 *   **Examples:** Designing registration forms (text box, label, button), large websites on the Internet.
+
+```mermaid
+flowchart TB
+    subgraph TwoTier["2-Tier Architecture"]
+        C1[Client Application<br/>Presentation + Business Logic]
+        D1[(Database Server<br/>Data Layer)]
+        C1 <--> D1
+    end
+    
+    subgraph ThreeTier["3-Tier Architecture"]
+        C2[Client Application<br/>Presentation Layer]
+        M[Middleware/Application Server<br/>Business Logic Layer]
+        D2[(Database Server<br/>Data Layer)]
+        C2 <--> M
+        M <--> D2
+    end
+    
+    style C1 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style D1 fill:#1a365d,stroke:#4a90e2,color:#fff
+    style C2 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style M fill:#744210,stroke:#ed8936,color:#fff
+    style D2 fill:#1a365d,stroke:#4a90e2,color:#fff
+    style TwoTier fill:#1e293b,stroke:#4a90e2,color:#fff
+    style ThreeTier fill:#1e293b,stroke:#4a90e2,color:#fff
+```
