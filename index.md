@@ -494,92 +494,192 @@ flowchart TB
 
 ```mermaid
 flowchart TD
-    Start([DBMS]) --> Basic
+    Start([DBMS Subject]) --> Fundamentals
     
-    Basic[Basic DBMS Interview Questions] --> Q1
-    Basic --> Q2
-    Basic --> Q3
-    Basic --> Q4
-    Basic --> Q5
-    Basic --> Q6
-    Basic --> Q7
+    Fundamentals[DBMS Fundamentals] --> F1[Introduction to DBMS]
+    Fundamentals --> F2[DBMS vs RDBMS]
+    Fundamentals --> F3[Database Definition]
+    Fundamentals --> F4[File Systems vs DBMS]
+    Fundamentals --> F5[DBMS Advantages]
     
-    Q1[1. DBMS and RDBMS]
-    Q2[2. Database Definition]
-    Q3[3. File-based Systems Issues]
-    Q4[4. DBMS Advantages]
-    Q5[5. DBMS Languages]
-    Q6[6. ACID Properties]
-    Q7[7. NULL Values]
+    F1 --> Core
+    F2 --> Core
+    F3 --> Core
+    F4 --> Core
+    F5 --> Core
     
-    Q1 --> Intermediate
-    Q2 --> Intermediate
-    Q3 --> Intermediate
-    Q4 --> Intermediate
-    Q5 --> Intermediate
-    Q6 --> Intermediate
-    Q7 --> Intermediate
+    Core[Core Database Concepts] --> C1[Database Structure]
+    Core --> C2[Tables, Rows, Columns]
+    Core --> C3[NULL Values vs Zero vs Blank]
+    Core --> C4[Data Abstraction Levels]
+    Core --> C5[Intension vs Extension]
     
-    Intermediate[Intermediate DBMS Interview Questions] --> Q8
-    Intermediate --> Q9
-    Intermediate --> Q10
-    Intermediate --> Q11
-    Intermediate --> Q12
-    Intermediate --> Q13
-    Intermediate --> Q14
-    Intermediate --> Q15
+    C1 --> Languages
+    C2 --> Languages
+    C3 --> Languages
+    C4 --> Languages
+    C5 --> Languages
     
-    Q8[8. Data Warehousing]
-    Q9[9. Data Abstraction Levels]
-    Q10[10. Entity-Relationship Model]
-    Q11[11. Relationship Types]
-    Q12[12. Intension vs Extension]
-    Q13[13. DELETE vs TRUNCATE]
-    Q14[14. Locks in Database]
-    Q15[15. Normalization vs Denormalization]
+    Languages[Database Languages] --> L1[DDL - Data Definition Language]
+    Languages --> L2[DML - Data Manipulation Language]
+    Languages --> L3[DCL - Data Control Language]
+    Languages --> L4[TCL - Transaction Control Language]
     
-    Q8 --> Advanced
-    Q9 --> Advanced
-    Q10 --> Advanced
-    Q11 --> Advanced
-    Q12 --> Advanced
-    Q13 --> Advanced
-    Q14 --> Advanced
-    Q15 --> Advanced
+    L1 --> Transactions
+    L2 --> Transactions
+    L3 --> Transactions
+    L4 --> Transactions
     
-    Advanced[Advanced DBMS Interview Questions] --> Q16
-    Advanced --> Q17
-    Advanced --> Q18
+    Transactions[Transaction Management] --> T1[ACID Properties]
+    Transactions --> T2[Atomicity]
+    Transactions --> T3[Consistency]
+    Transactions --> T4[Isolation]
+    Transactions --> T5[Durability]
+    Transactions --> T6[Locks - Shared vs Exclusive]
     
-    Q16[16. Normalization Forms]
-    Q17[17. Database Keys]
-    Q18[18. 2-Tier vs 3-Tier Architecture]
+    T1 --> Modeling
+    T2 --> Modeling
+    T3 --> Modeling
+    T4 --> Modeling
+    T5 --> Modeling
+    T6 --> Modeling
     
-    Q16 --> End([Completion])
-    Q17 --> End
-    Q18 --> End
+    Modeling[Data Modeling] --> M1[Entity-Relationship Model]
+    Modeling --> M2[Entity, Entity Type, Entity Set]
+    Modeling --> M3[Relationship Types]
+    Modeling --> M4[One-to-One]
+    Modeling --> M5[One-to-Many]
+    Modeling --> M6[Many-to-Many]
+    Modeling --> M7[Self-Referencing]
     
-    style Start fill:#6a4c93,stroke:#ffffff,color:#ffffff
-    style Basic fill:#7b1fa2,stroke:#ffffff,color:#ffffff
-    style Intermediate fill:#7b1fa2,stroke:#ffffff,color:#ffffff
-    style Advanced fill:#7b1fa2,stroke:#ffffff,color:#ffffff
-    style End fill:#6a4c93,stroke:#ffffff,color:#ffffff
-    style Q1 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q2 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q3 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q4 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q5 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q6 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q7 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q8 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q9 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q10 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q11 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q12 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q13 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q14 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q15 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q16 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q17 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style Q18 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    M1 --> Keys
+    M2 --> Keys
+    M3 --> Keys
+    M4 --> Keys
+    M5 --> Keys
+    M6 --> Keys
+    M7 --> Keys
+    
+    Keys[Database Keys] --> K1[Super Key]
+    Keys --> K2[Candidate Key]
+    Keys --> K3[Primary Key]
+    Keys --> K4[Foreign Key]
+    Keys --> K5[Unique Key]
+    Keys --> K6[Alternate Key]
+    Keys --> K7[Composite Key]
+    
+    K1 --> Normalization
+    K2 --> Normalization
+    K3 --> Normalization
+    K4 --> Normalization
+    K5 --> Normalization
+    K6 --> Normalization
+    K7 --> Normalization
+    
+    Normalization[Normalization] --> N1[Normalization vs Denormalization]
+    Normalization --> N2[First Normal Form - 1NF]
+    Normalization --> N3[Second Normal Form - 2NF]
+    Normalization --> N4[Third Normal Form - 3NF]
+    Normalization --> N5[Boyce-Codd Normal Form - BCNF]
+    
+    N1 --> Operations
+    N2 --> Operations
+    N3 --> Operations
+    N4 --> Operations
+    N5 --> Operations
+    
+    Operations[Database Operations] --> O1[DELETE Command]
+    Operations --> O2[TRUNCATE Command]
+    Operations --> O3[Data Manipulation]
+    
+    O1 --> Architecture
+    O2 --> Architecture
+    O3 --> Architecture
+    
+    Architecture[Database Architecture] --> A1[2-Tier Architecture]
+    Architecture --> A2[3-Tier Architecture]
+    Architecture --> A3[Client-Server Model]
+    
+    A1 --> Advanced
+    A2 --> Advanced
+    A3 --> Advanced
+    
+    Advanced[Advanced Topics] --> AD1[Data Warehousing]
+    Advanced --> AD2[ETL Process]
+    Advanced --> AD3[Data Analytics]
+    
+    AD1 --> End([Mastery])
+    AD2 --> End
+    AD3 --> End
+    
+    style Start fill:#6a4c93,stroke:#ffffff,color:#ffffff,stroke-width:3px
+    style Fundamentals fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Core fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Languages fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Transactions fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Modeling fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Keys fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Normalization fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Operations fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Architecture fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style Advanced fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
+    style End fill:#6a4c93,stroke:#ffffff,color:#ffffff,stroke-width:3px
+    
+    style F1 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style F2 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style F3 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style F4 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style F5 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    
+    style C1 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style C2 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style C3 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style C4 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style C5 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    
+    style L1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style L2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style L3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style L4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    
+    style T1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style T2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style T3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style T4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style T5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style T6 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    
+    style M1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style M2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style M3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style M4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style M5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style M6 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style M7 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    
+    style K1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style K2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style K3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style K4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style K5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style K6 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style K7 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    
+    style N1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style N2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style N3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style N4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style N5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    
+    style O1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style O2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style O3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    
+    style A1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style A2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style A3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    
+    style AD1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style AD2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    style AD3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
 ```
