@@ -489,3 +489,97 @@ flowchart TB
     style TwoTier fill:#1e293b,stroke:#4a90e2,color:#fff
     style ThreeTier fill:#1e293b,stroke:#4a90e2,color:#fff
 ```
+
+## Complete DBMS Roadmap
+
+```mermaid
+flowchart TD
+    Start([DBMS]) --> Basic
+    
+    Basic[Basic DBMS Interview Questions] --> Q1
+    Basic --> Q2
+    Basic --> Q3
+    Basic --> Q4
+    Basic --> Q5
+    Basic --> Q6
+    Basic --> Q7
+    
+    Q1[1. DBMS and RDBMS]
+    Q2[2. Database Definition]
+    Q3[3. File-based Systems Issues]
+    Q4[4. DBMS Advantages]
+    Q5[5. DBMS Languages]
+    Q6[6. ACID Properties]
+    Q7[7. NULL Values]
+    
+    Q1 --> Intermediate
+    Q2 --> Intermediate
+    Q3 --> Intermediate
+    Q4 --> Intermediate
+    Q5 --> Intermediate
+    Q6 --> Intermediate
+    Q7 --> Intermediate
+    
+    Intermediate[Intermediate DBMS Interview Questions] --> Q8
+    Intermediate --> Q9
+    Intermediate --> Q10
+    Intermediate --> Q11
+    Intermediate --> Q12
+    Intermediate --> Q13
+    Intermediate --> Q14
+    Intermediate --> Q15
+    
+    Q8[8. Data Warehousing]
+    Q9[9. Data Abstraction Levels]
+    Q10[10. Entity-Relationship Model]
+    Q11[11. Relationship Types]
+    Q12[12. Intension vs Extension]
+    Q13[13. DELETE vs TRUNCATE]
+    Q14[14. Locks in Database]
+    Q15[15. Normalization vs Denormalization]
+    
+    Q8 --> Advanced
+    Q9 --> Advanced
+    Q10 --> Advanced
+    Q11 --> Advanced
+    Q12 --> Advanced
+    Q13 --> Advanced
+    Q14 --> Advanced
+    Q15 --> Advanced
+    
+    Advanced[Advanced DBMS Interview Questions] --> Q16
+    Advanced --> Q17
+    Advanced --> Q18
+    
+    Q16[16. Normalization Forms]
+    Q17[17. Database Keys]
+    Q18[18. 2-Tier vs 3-Tier Architecture]
+    
+    Q16 --> End([Completion])
+    Q17 --> End
+    Q18 --> End
+    
+    style Start fill:#6a4c93,stroke:#ffffff,color:#ffffff
+    style Basic fill:#7b1fa2,stroke:#ffffff,color:#ffffff
+    style Intermediate fill:#7b1fa2,stroke:#ffffff,color:#ffffff
+    style Advanced fill:#7b1fa2,stroke:#ffffff,color:#ffffff
+    style End fill:#6a4c93,stroke:#ffffff,color:#ffffff
+    style Q1 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q2 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q3 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q4 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q5 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q6 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q7 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q8 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q9 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q10 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q11 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q12 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q13 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q14 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q15 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q16 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q17 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+    style Q18 fill:#9c27b0,stroke:#ffffff,color:#ffffff
+```
