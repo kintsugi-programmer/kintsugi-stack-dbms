@@ -40,6 +40,7 @@ keywords:
 ### 1. What is meant by DBMS and what is its utility? Explain RDBMS with examples.
 
 **DBMS (Database Management System)**
+
 *   **Definition:** A set of applications or programs that enable users to create and maintain a database.
 *   **Utility:**
     *   Provides a tool or interface for performing various operations such as inserting, deleting, updating, etc., into a database.
@@ -49,6 +50,7 @@ keywords:
 *   **Examples:** File systems, XML, Windows Registry, etc.
 
 **RDBMS (Relational Database Management System)**
+
 *   **Definition:** Introduced in the 1970s to access and store data more efficiently than DBMS.
 *   **Structure:** Stores data in the form of **tables** (rows and columns) compared to DBMS which stores data as files.
 *   **Utility:** Storing data as rows and columns makes it easier to locate specific values in the database and makes it more efficient compared to DBMS.
@@ -94,6 +96,7 @@ keywords:
 ### 5. Explain different languages present in DBMS.
 
 **DDL (Data Definition Language)**
+
 *   Contains commands required to define the database.
 *   **Examples:**
     ```sql
@@ -101,6 +104,7 @@ keywords:
     ```
 
 **DML (Data Manipulation Language)**
+
 *   Contains commands required to manipulate the data present in the database.
 *   **Examples:**
     ```sql
@@ -108,6 +112,7 @@ keywords:
     ```
 
 **DCL (Data Control Language)**
+
 *   Contains commands required to deal with user permissions and controls of the database system.
 *   **Examples:**
     ```sql
@@ -115,6 +120,7 @@ keywords:
     ```
 
 **TCL (Transaction Control Language)**
+
 *   Contains commands required to deal with the transaction of the database.
 *   **Examples:**
     ```sql
@@ -266,6 +272,7 @@ flowchart TB
 *   **E-R Model:** A diagrammatic approach to database design where real-world objects are represented as entities and relationships between them are mentioned.
 
 **Terms:**
+
 *   **Entity:** A real-world object having attributes that represent characteristics of that particular object.
     *   *Example:* A student, an employee, or a teacher.
 *   **Entity Type:** A collection of entities that have the same attributes.
@@ -347,12 +354,14 @@ erDiagram
 ### 13. Explain the difference between the DELETE and TRUNCATE command in a DBMS.
 
 **DELETE Command**
+
 *   Needed to delete rows from a table based on the condition provided by the `WHERE` clause.
 *   Deletes only rows specified by the `WHERE` clause.
 *   Can be rolled back if required.
 *   Maintains a log to lock the row of the table before deleting it; hence, it is **slow**.
 
 **TRUNCATE Command**
+
 *   Needed to remove complete data from a table.
 *   Like a DELETE command with **no** `WHERE` clause.
 *   Removes complete data from a table.
@@ -364,11 +373,13 @@ erDiagram
 *   **Lock:** A mechanism to protect a shared piece of data from getting updated by two or more database users at the same time. When a single user/session acquires a lock, no other user/session can modify that data until the lock is released.
 
 **Shared Lock**
+
 *   Required for **reading** a data item.
 *   Many transactions may hold a lock on the same data item.
 *   Multiple transactions are **allowed** to read data items.
 
 **Exclusive Lock**
+
 *   Required for any transaction about to perform a **write** operation.
 *   Does **not** allow more than one transaction.
 *   Prevents inconsistency in the database.
@@ -420,6 +431,7 @@ Reference Example Sample:
 ![alt text](images/image-15.webp)
 
 **1. First Normal Form (1NF)**
+
 *   Simplest type. Conditions:
     *   Every column must have a **single value** and should be **atomic**.
     *   **Duplicate columns** from the same table should be removed.
@@ -430,6 +442,7 @@ Sample's 1NF form:
 ![alt text](images/image-16.webp)
 
 **2. Second Normal Form (2NF)**
+
 *   Conditions:
     *   Table must be in **1NF**.
     *   Every **non-prime attribute** should be **fully functionally dependent** on the primary key.
@@ -441,6 +454,7 @@ Sample's 2NF form:
 
 
 **3. Third Normal Form (3NF)**
+
 *   Conditions:
     *   Table must be in **2NF**.
     *   There is **no transitive functional dependency** of one attribute on any attribute in the same table.
@@ -451,6 +465,7 @@ Sample's 3NF form:
 ![alt text](images/image-19.webp)
 
 **4. Boyce-Codd Normal Form (BCNF) / 3.5NF**
+
 *   Advanced form of 3NF. Conditions:
     *   Table must be in **3NF**.
     *   For every functional dependency `A -> B`, **A** should be the **super key** of the table.
@@ -473,34 +488,41 @@ flowchart LR
 ### 17. Explain different types of keys in a database.
 
 **1. Candidate Key**
+
 *   A set of properties that can uniquely identify a table.
 *   Each table may have multiple candidate keys.
 *   One key amongst them is chosen as the primary key.
 *   *Example:* `studentId` and `firstName` can both be Candidate Keys if they uniquely identify every tuple.
 
 **2. Super Key**
+
 *   A set of attributes that can uniquely identify a tuple.
 *   Candidate key and primary key are **subsets** of the super key (the super key is their superset).
 
 **3. Primary Key**
+
 *   A set of attributes used to uniquely identify every tuple.
 *   Chosen from the candidate keys.
 *   Does **not** allow NULL values.
 *   *Example:* `studentId` chosen over `firstName` for the student table.
 
 **4. Unique Key**
+
 *   Similar to primary key but **allows NULL values** in the column.
 *   Essentially primary keys with NULL values.
 
 **5. Alternate Key**
+
 *   All candidate keys **not** chosen as primary keys.
 *   *Example:* If `studentId` is Primary, `firstName` and `lastname` are alternate keys.
 
 **6. Foreign Key**
+
 *   An attribute that can only take values present in one table common to the attribute present in another table.
 *   *Example:* `courseId` in the Student table is a foreign key to the Course table.
 
 **7. Composite Key**
+
 *   A combination of **two or more columns** that can uniquely identify each tuple in a table.
 *   *Example:* Grouping `studentId` and `firstname`.
 
@@ -530,6 +552,7 @@ flowchart TB
 ### 18. Explain the difference between a 2-tier and 3-tier architecture in a DBMS.
 
 **2-Tier Architecture**
+
 *   **Client-Server architecture.**
 *   Applications at the client end **directly communicate** with the database at the server end.
 *   **No middleware** involved.
@@ -538,6 +561,7 @@ flowchart TB
 ![alt text](images/image-24.webp)
 
 **3-Tier Architecture**
+
 *   Contains another layer (**Middleware**) between the client and the server.
 *   Provides **GUI** to users.
 *   Makes the system much more secure and accessible.
