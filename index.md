@@ -46,6 +46,34 @@ keywords:
 
 # DBMS
 
+![alt text](images/image-26.webp)
+
+<div style="position:relative;width:100%;padding-bottom:56.25%;height:0;">
+  <iframe
+    src="https://www.youtube.com/embed/JNf5TEoUDjY?si=yHD8BaRqEXG_RFcV"
+    title="YouTube video player"
+    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+</div>
+
+![alt text](images/image-27.webp)
+
+<div style="position:relative;width:100%;padding-bottom:56.25%;height:0;">
+  <iframe
+    src="https://www.youtube.com/embed/remTMUmk7RU?si=_MeiZoTh8eYfbHTb"
+    title="YouTube video player"
+    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+</div>
+
+## Basic DBMS Interview Questions
+
 ![alt text](images/image.webp)
 
 <div style="position:relative;width:100%;padding-bottom:56.25%;height:0;">
@@ -58,8 +86,6 @@ keywords:
     allowfullscreen>
   </iframe>
 </div>
-
-## Basic DBMS Interview Questions
 
 ### 1. What is meant by DBMS and what is its utility? Explain RDBMS with examples.
 
@@ -621,6 +647,22 @@ flowchart TB
     style TwoTier fill:#1e293b,stroke:#4a90e2,color:#fff
     style ThreeTier fill:#1e293b,stroke:#4a90e2,color:#fff
 ```
+
+---
+
+![alt text](images/image-27.webp)
+
+<div style="position:relative;width:100%;padding-bottom:56.25%;height:0;">
+  <iframe
+    src="https://www.youtube.com/embed/zYBAjQ49dAE?si=K9fbcbcHt4vStabg"
+    title="YouTube video player"
+    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+</div>
+
 
 ---
 
