@@ -1367,21 +1367,26 @@ sequenceDiagram
     participant T1
     participant DB
     participant T2
+
     Note over T1,T2: Dirty Read
     T2->>DB: UPDATE balance = 0 (not committed)
     T1->>DB: READ balance
-    DB-->>T1: 0 (dirty! T2 may rollback)
+    DB-->>T1: 0 (dirty read)
     T2->>DB: ROLLBACK
+
     Note over T1,T2: Non-Repeatable Read
     T1->>DB: READ price = 100
-    T2->>DB: UPDATE price = 200; COMMIT
+    T2->>DB: UPDATE price = 200
+    T2->>DB: COMMIT
     T1->>DB: READ price again
-    DB-->>T1: 200 (changed within T1!)
+    DB-->>T1: 200 (value changed)
+
     Note over T1,T2: Phantom Read
     T1->>DB: SELECT WHERE age > 18 (5 rows)
-    T2->>DB: INSERT new adult row; COMMIT
+    T2->>DB: INSERT new adult row
+    T2->>DB: COMMIT
     T1->>DB: SELECT WHERE age > 18
-    DB-->>T1: 6 rows (phantom appeared!)
+    DB-->>T1: 6 rows (phantom row appeared)
 ```
 
 ### 71. What is a lost update and how do you prevent it?
@@ -1394,11 +1399,19 @@ sequenceDiagram
     participant T1
     participant DB
     participant T2
+
     T1->>DB: READ stock = 10
     T2->>DB: READ stock = 10
-    T1->>DB: UPDATE stock = 10 - 3 = 7; COMMIT
-    T2->>DB: UPDATE stock = 10 - 5 = 5; COMMIT
-    Note over DB: ❌ Lost Update! T1's deduction overwritten.\nActual: should be 2, result is 5.
+
+    T1->>DB: UPDATE stock = 7
+    T1->>DB: COMMIT
+
+    T2->>DB: UPDATE stock = 5
+    T2->>DB: COMMIT
+
+    Note over DB: Lost Update!
+    Note over DB: Correct value should be 2
+    Note over DB: Final value becomes 5
 ```
 
 ### 72. Optimistic locking vs pessimistic locking
