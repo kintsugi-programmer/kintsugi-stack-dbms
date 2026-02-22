@@ -1,5 +1,5 @@
 ---
-title: DBMS Interview Questions – Complete Guide (76 Q&As)
+title: DBMS Interview Questions
 description: Comprehensive DBMS interview guide covering 76 questions across 9 topics — DBMS fundamentals, ACID properties, normalization, SQL querying, database indexing, query optimization, security, replication, sharding, crash recovery, Write-Ahead Logging, and transaction concurrency including MVCC, deadlocks, and isolation levels.
 keywords:
   - DBMS interview questions
@@ -599,15 +599,18 @@ flowchart TB
     subgraph TwoTier["2-Tier Architecture"]
         C1[Client Application<br/>Presentation + Business Logic]
         D1[(Database Server<br/>Data Layer)]
-        C1 <--> D1
+        C1 --> D1
+        D1 --> C1
     end
     
     subgraph ThreeTier["3-Tier Architecture"]
         C2[Client Application<br/>Presentation Layer]
-        M[Middleware/Application Server<br/>Business Logic Layer]
+        M[Middleware / Application Server<br/>Business Logic Layer]
         D2[(Database Server<br/>Data Layer)]
-        C2 <--> M
-        M <--> D2
+        C2 --> M
+        M --> C2
+        M --> D2
+        D2 --> M
     end
     
     style C1 fill:#2c5282,stroke:#4a90e2,color:#fff
@@ -899,11 +902,14 @@ flowchart LR
 flowchart LR
     subgraph IJ["INNER JOIN"]
         direction LR
-        LA([A]) --- AB([A ∩ B]) --- LB([B])
+        LA([Table A]) --> AB([Matching Rows Only])
+        LB([Table B]) --> AB
     end
     subgraph LJ["LEFT JOIN"]
         direction LR
-        LL(["All of A"]) --- LJ2(["A ∩ B"]) --- LN(["B or NULL"])
+        LL([All of Table A]) --> LJ2([Matched Rows])
+        LL --> LN([Unmatched rows: NULL on right])
+        LB2([Table B]) --> LJ2
     end
     style IJ fill:#1e3a5f,stroke:#4a90e2,color:#fff
     style LJ fill:#1a365d,stroke:#48bb78,color:#fff
@@ -1033,7 +1039,8 @@ flowchart LR
         LFW -->|Replicate| LFF2[Follower 2\nReads Only]
     end
     subgraph ML["Multi-Leader"]
-        ML1[Leader A\nWrites + Reads] <-->|Sync + Conflict\nResolution| ML2[Leader B\nWrites + Reads]
+        ML1[Leader A\nWrites + Reads] -->|Sync to B| ML2[Leader B\nWrites + Reads]
+        ML2 -->|Sync to A| ML1
         ML1 -->|Replicate| MLF1[Follower]
         ML2 -->|Replicate| MLF2[Follower]
     end
