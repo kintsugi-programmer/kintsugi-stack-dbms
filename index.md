@@ -1,23 +1,47 @@
 ---
-title: DBMS Database Management Systems
-description: A structured guide covering fundamental to advanced DBMS concepts including relational databases, ACID properties, normalization, entity-relationship modeling, transaction management, and database architecture patterns.
+title: DBMS Interview Questions – Complete Guide (76 Q&As)
+description: Comprehensive DBMS interview guide covering 76 questions across 9 topics — DBMS fundamentals, ACID properties, normalization, SQL querying, database indexing, query optimization, security, replication, sharding, crash recovery, Write-Ahead Logging, and transaction concurrency including MVCC, deadlocks, and isolation levels.
 keywords:
+  - DBMS interview questions
   - database management system
-  - DBMS fundamentals
-  - RDBMS concepts
+  - RDBMS fundamentals
   - ACID properties
-  - database normalization
+  - normalization 1NF 2NF 3NF BCNF
   - entity relationship model
-  - database keys
-  - SQL languages DDL DML DCL TCL
-  - database transactions
-  - data abstraction levels
-  - normalization forms 1NF 2NF 3NF BCNF
-  - database architecture
-  - data warehousing
-  - shared lock exclusive lock
-  - database schema design
-  - relational database theory
+  - database keys primary foreign candidate composite
+  - DDL DML DCL TCL SQL languages
+  - clustered vs non-clustered index
+  - composite index leftmost prefix rule
+  - covering index query optimization
+  - index fragmentation execution plan
+  - index seek vs index scan
+  - SQL injection parameterized queries
+  - row-level security database access control
+  - encryption at rest encryption in transit
+  - least privilege principle database auditing
+  - WHERE vs HAVING GROUP BY
+  - INNER JOIN LEFT JOIN SQL joins
+  - UNION vs UNION ALL performance
+  - CTE common table expression subquery
+  - window functions ROW_NUMBER partition by
+  - materialized view vs view
+  - database sharding partitioning hash range
+  - replication lag read replicas
+  - leader follower multi-leader replication
+  - eventual consistency distributed databases
+  - hot shard multi-region high availability
+  - schema migration zero downtime
+  - RPO RTO backup recovery
+  - Write-Ahead Logging WAL durability
+  - crash recovery redo log undo log
+  - point in time recovery PITR checkpoints
+  - transaction isolation levels
+  - dirty read phantom read non-repeatable read
+  - MVCC multi-version concurrency control
+  - deadlock detection optimistic pessimistic locking
+  - write skew serializable isolation
+  - data warehousing ETL
+  - 2-tier 3-tier database architecture
 ---
 
 # DBMS
@@ -595,196 +619,1103 @@ flowchart TB
     style ThreeTier fill:#1e293b,stroke:#4a90e2,color:#fff
 ```
 
+---
+
+## DBMS Indexing & Query Optimization
+
+### 19. What is selectivity/cardinality and why does it matter for indexing?
+
+*   **Selectivity** refers to how unique the values in a column are.
+*   **High selectivity** means most values are unique (e.g., user IDs). **Low selectivity** means many rows share the same value (e.g., status flags).
+*   Indexes work best on **high-selectivity columns**. Indexing low-selectivity columns often gives little benefit.
+*   Understanding data distribution helps decide which columns should be indexed.
+
+### 20. What is an index and why can indexing slow down INSERT/UPDATE/DELETE?
+
+*   An **index** is a data structure that helps the database find rows faster without scanning the full table.
+*   It improves **read performance** by reducing the amount of data searched.
+*   However, every time you insert, update, or delete data, the index also needs to be updated.
+*   This **extra write overhead** slows down write operations. The more indexes a table has, the slower writes become.
+*   Indexing is always a balance between **read speed** and **write performance**.
+
+### 21. Difference between clustered and non-clustered index
+
+*   **Clustered Index:** Defines the physical order of data in the table. A table can have **only one** clustered index. Faster for range queries.
+*   **Non-Clustered Index:** Stores a separate structure that points to the actual rows. Does not change how data is stored on disk. Better for specific lookups.
+*   Choosing the wrong type can lead to inefficient queries.
+
+```mermaid
+flowchart LR
+    subgraph CI["Clustered Index"]
+        direction TB
+        CD[(Table Data\nordered by index key)] --> CR1[Row 1: id=1]
+        CD --> CR2[Row 2: id=2]
+        CD --> CR3[Row 3: id=3]
+    end
+    subgraph NCI["Non-Clustered Index"]
+        direction TB
+        NI[Index Structure\nsorted by key] --> P1[Pointer → Row A]
+        NI --> P2[Pointer → Row B]
+        NI --> P3[Pointer → Row C]
+        P1 --> ND[(Table Data\nunordered)]
+        P2 --> ND
+        P3 --> ND
+    end
+    style CI fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style NCI fill:#1a365d,stroke:#4a90e2,color:#fff
+    style CD fill:#2c5282,stroke:#4a90e2,color:#fff
+    style ND fill:#2c5282,stroke:#4a90e2,color:#fff
+    style NI fill:#744210,stroke:#ed8936,color:#fff
+```
+
+### 22. When does a query not use an index even if one exists?
+
+*   The query optimizer thinks a **full table scan is faster** (e.g., when a large percentage of rows match the condition).
+*   Using **functions on indexed columns** can prevent index usage.
+*   **Mismatched data types** or implicit conversions can break index access.
+*   Poorly written queries confuse the optimizer.
+
+### 23. What is a composite index and the leftmost prefix rule?
+
+*   A **composite index** is an index created on **multiple columns** together.
+*   The **leftmost prefix rule** means the index is used only if the query filters starting from the first column.
+*   *Example:* An index on `(user_id, order_date)` works for queries filtering by `user_id`, but **not** for queries filtering only by `order_date`.
+*   Always match index column order with real query usage.
+
+```mermaid
+flowchart TD
+    IDX["Composite Index\n(user_id, order_date, amount)"]
+    IDX --> Q1["WHERE user_id = 5\n✅ Uses index"]
+    IDX --> Q2["WHERE user_id = 5\nAND order_date = '2024-01-01'\n✅ Uses index"]
+    IDX --> Q3["WHERE user_id = 5\nAND order_date = '2024-01-01'\nAND amount > 100\n✅ Uses index"]
+    IDX --> Q4["WHERE order_date = '2024-01-01'\n❌ Skips index\n(no leftmost prefix)"]
+    IDX --> Q5["WHERE amount > 100\n❌ Skips index\n(no leftmost prefix)"]
+    style IDX fill:#744210,stroke:#ed8936,color:#fff
+    style Q1 fill:#276749,stroke:#48bb78,color:#fff
+    style Q2 fill:#276749,stroke:#48bb78,color:#fff
+    style Q3 fill:#276749,stroke:#48bb78,color:#fff
+    style Q4 fill:#742a2a,stroke:#f56565,color:#fff
+    style Q5 fill:#742a2a,stroke:#f56565,color:#fff
+```
+
+### 24. What is a covering index and how does it reduce table lookups?
+
+*   A **covering index** contains **all the columns needed by a query**.
+*   This allows the database to fetch results directly from the index **without accessing the table**, resulting in fewer disk reads.
+*   Especially useful for **read-heavy/reporting queries**.
+*   Trade-off: They increase index size and slow down writes.
+
+### 25. What is an execution plan and what do you check first?
+
+*   An **execution plan** shows how the database executes a query step by step — which indexes are used, how tables are joined, etc.
+*   **First checks:**
+    *   Are **indexes being used** or ignored?
+    *   Are there **full table scans** on large tables?
+    *   What are the **estimated vs actual row counts**?
+*   A bad execution plan usually points to missing or incorrect indexes.
+
+```mermaid
+flowchart TD
+    Q([Run Query]) --> EP[Get Execution Plan]
+    EP --> C1{Index Used?}
+    C1 -->|Yes| C2{Full Table Scan\non Large Table?}
+    C1 -->|No| Fix1[Add or Fix Index]
+    C2 -->|No| C3{Estimated vs Actual\nRow Count Match?}
+    C2 -->|Yes| Fix2[Rewrite Query or\nAdd Index]
+    C3 -->|Yes| OK([Plan is Healthy])
+    C3 -->|No| Fix3[Update Statistics\nor Rewrite Query]
+    style Q fill:#2d3748,stroke:#4a90e2,color:#fff
+    style EP fill:#2c5282,stroke:#4a90e2,color:#fff
+    style OK fill:#276749,stroke:#48bb78,color:#fff
+    style Fix1 fill:#742a2a,stroke:#f56565,color:#fff
+    style Fix2 fill:#742a2a,stroke:#f56565,color:#fff
+    style Fix3 fill:#744210,stroke:#ed8936,color:#fff
+```
+
+### 26. Index scan vs index seek and when they occur
+
+*   **Index Seek:** The database jumps directly to matching rows using the index. Fast and efficient. Indicates good indexing and selective filters.
+*   **Index Scan:** The database scans a large part or all of the index. Happens when many rows match the condition.
+*   Frequent scans on large datasets can hurt performance.
+
+```mermaid
+flowchart LR
+    subgraph Seek["Index Seek ✅ (Fast)"]
+        direction TB
+        SK1[Index Root] --> SK2[Branch Node]
+        SK2 --> SK3[Target Leaf]
+        SK3 --> SK4["Matching Row\n(Direct Jump)"]
+    end
+    subgraph Scan["Index Scan ⚠️ (Slower)"]
+        direction TB
+        SC1[Index Start] --> SC2[Leaf 1]
+        SC2 --> SC3[Leaf 2]
+        SC3 --> SC4[Leaf 3]
+        SC4 --> SC5["... N Leaves\n(Full Traversal)"]
+    end
+    style Seek fill:#1e3a5f,stroke:#48bb78,color:#fff
+    style Scan fill:#1e293b,stroke:#ed8936,color:#fff
+    style SK4 fill:#276749,stroke:#48bb78,color:#fff
+    style SC5 fill:#744210,stroke:#ed8936,color:#fff
+```
+
+### 27. What is index fragmentation or bloat and its impact?
+
+*   **Index fragmentation** happens when index pages become disorganized over time due to frequent inserts, updates, and deletes.
+*   Fragmented indexes require **more disk reads**, causing query performance to slowly degrade.
+*   **Fix:** Rebuilding or reorganizing indexes. Regular maintenance is important for long-running production systems.
+
+### 28. Common production reasons for slow queries and debugging flow
+
+*   Slow queries are often caused by **missing indexes**, **bad joins**, or **large data growth**.
+*   **Debugging steps:**
+    1.  Check query execution time and execution plans.
+    2.  Look for full scans, high I/O, or blocking locks.
+    3.  Tune indexes to fix most issues.
+*   Performance debugging is about **data size**, not just SQL syntax.
+
+---
+
+## DBMS Security & Governance
+
+### 29. Risk of giving apps superuser DB permissions
+
+*   Superuser access allows full control over the database.
+*   If an app is compromised, attackers gain **unlimited power** — leading to data loss or system damage.
+*   It also increases the impact of bugs or bad queries.
+*   **Best practice:** Production apps should **never** use superuser accounts. Limiting permissions reduces risk significantly.
+
+### 30. What is SQL injection and how do parameterized queries prevent it?
+
+*   **SQL Injection** happens when user input is treated as part of a SQL command, allowing attackers to modify the query to access or change data.
+*   **Parameterized queries** separate SQL logic from user input — the database treats inputs **only as values**, not executable code.
+*   This completely blocks injection attacks and is the safest, most common defense.
+
+```mermaid
+flowchart TD
+    subgraph Unsafe["❌ SQL Injection Vulnerable"]
+        U1[User Input: '\' OR 1=1 --'] --> U2["Query: SELECT * FROM users\nWHERE name = '' OR 1=1 --'"]
+        U2 --> U3["Returns ALL rows\n🔓 Data breach!"]
+    end
+    subgraph Safe["✅ Parameterized Query"]
+        S1[User Input: '\' OR 1=1 --'] --> S2["Query: SELECT * FROM users\nWHERE name = ?"]
+        S2 --> S3[DB treats input as literal value]
+        S3 --> S4["Returns 0 rows\n🔒 Safe"]
+    end
+    style Unsafe fill:#742a2a,stroke:#f56565,color:#fff
+    style Safe fill:#1e3a5f,stroke:#48bb78,color:#fff
+    style U3 fill:#742a2a,stroke:#f56565,color:#fff
+    style S4 fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 31. DB authentication vs authorization and roles in practice
+
+*   **Authentication:** Checks *who you are* (username/password).
+*   **Authorization:** Decides *what actions you are allowed* to perform.
+*   **Roles** group permissions (read, write, admin) and are assigned to users instead of individual privileges.
+*   This makes access easier to manage and audit.
+
+### 32. What is row-level security and a real use-case?
+
+*   **Row-level security** restricts which rows a user can see in a table — the same query returns different results for different users.
+*   **Use-case:** **Multi-tenant systems** where each customer sees only their own data.
+*   The logic is enforced by the database itself, preventing accidental data leaks at the app layer.
+
+### 33. Encryption at rest vs encryption in transit
+
+*   **Encryption at Rest:** Protects **data stored on disk**. Prevents data theft if disks or backups are accessed.
+*   **Encryption in Transit:** Protects **data moving** between the app and database (e.g., using TLS/SSL).
+*   Both are required for full security — one does not replace the other.
+
+```mermaid
+flowchart LR
+    App[Application] -->|TLS/SSL Encrypted\nEncryption in Transit| DB[(Database Server)]
+    DB -->|Encrypted at Rest\non disk & backups| Disk[💾 Disk / Storage]
+    style App fill:#2c5282,stroke:#4a90e2,color:#fff
+    style DB fill:#1a365d,stroke:#4a90e2,color:#fff
+    style Disk fill:#744210,stroke:#ed8936,color:#fff
+```
+
+### 34. How do you store DB credentials safely?
+
+*   DB credentials should **never** be hardcoded in source code.
+*   Stored in a **secrets manager** or secure vault; applications fetch credentials at runtime.
+*   Access is controlled using IAM or service identities.
+*   Secrets can be rotated without code changes, reducing the risk of leaks.
+
+### 35. What does least privilege mean in DB access control?
+
+*   **Least privilege** means giving **only the permissions strictly required**.
+*   Applications should not have admin or schema-altering access; read-only users should not be able to write data.
+*   This limits damage if credentials are compromised and reduces the chance of human error.
+
+### 36. What is auditing and what should be logged?
+
+*   **Auditing** tracks important actions performed in the database.
+*   **What to log:** Logins, permission changes, schema updates, and sensitive data access.
+*   Audit logs help in **security investigations and compliance**. They must be protected from tampering.
+
+### 37. How do you protect PII data?
+
+*   PII can be protected using **masking**, **tokenization**, or **encryption**.
+*   **Masking:** Hides parts of the data for non-privileged users.
+*   **Tokenization:** Replaces sensitive values with safe references.
+*   **Encryption:** Protects data at rest and in backups.
+*   The goal is minimizing exposure by using the right technique for each access need.
+
+---
+
+## DBMS SQL & Querying
+
+### 38. Difference between WHERE and HAVING
+
+*   **WHERE** filters rows **before** any grouping or aggregation. It works on individual records and **cannot** use aggregate functions.
+*   **HAVING** is applied **after** `GROUP BY` and is meant for filtering aggregated results.
+*   *Example:* Filter orders by status → use `WHERE`. Filter customers with total orders > 5 → use `HAVING`.
+*   A good rule: **filter early using WHERE** whenever possible.
+
+```mermaid
+flowchart LR
+    T[(Raw Table Rows)] --> W[WHERE Filter\nearly, row-by-row]
+    W --> GB[GROUP BY]
+    GB --> AGG[Aggregate\nCOUNT / SUM / AVG]
+    AGG --> H[HAVING Filter\non aggregated results]
+    H --> R([Result Set])
+    style T fill:#1a365d,stroke:#4a90e2,color:#fff
+    style W fill:#744210,stroke:#ed8936,color:#fff
+    style GB fill:#2c5282,stroke:#4a90e2,color:#fff
+    style AGG fill:#2c5282,stroke:#4a90e2,color:#fff
+    style H fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style R fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 39. INNER JOIN vs LEFT JOIN and when LEFT JOIN behaves like INNER JOIN
+
+*   **INNER JOIN:** Returns only rows that exist in **both** tables.
+*   **LEFT JOIN:** Returns all rows from the **left table**, even if there is no matching row on the right side.
+*   **Gotcha:** A LEFT JOIN can accidentally behave like an INNER JOIN if you add conditions on the right table in the `WHERE` clause (removes NULL rows). Fix: put right-table conditions inside the `ON` clause instead.
+
+```mermaid
+flowchart LR
+    subgraph IJ["INNER JOIN"]
+        direction LR
+        LA([A]) --- AB([A ∩ B]) --- LB([B])
+    end
+    subgraph LJ["LEFT JOIN"]
+        direction LR
+        LL(["All of A"]) --- LJ2(["A ∩ B"]) --- LN(["B or NULL"])
+    end
+    style IJ fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style LJ fill:#1a365d,stroke:#48bb78,color:#fff
+    style AB fill:#2c5282,stroke:#4a90e2,color:#fff
+    style LJ2 fill:#276749,stroke:#48bb78,color:#fff
+    style LN fill:#2d3748,stroke:#4a90e2,color:#fff
+```
+
+### 40. What causes duplicate rows after a JOIN, and how to fix it
+
+*   Duplicate rows appear when one row in a table matches **multiple rows** in another (one-to-many relationships).
+*   **Fixes:**
+    *   Aggregate data before joining.
+    *   Ensure you are joining on the correct keys.
+    *   Use `DISTINCT` cautiously (it can hide real data issues).
+*   Understanding the data structure is more important than forcing uniqueness.
+
+### 41. What is a correlated subquery, and when is it slower than a JOIN?
+
+*   A **correlated subquery** depends on values from the outer query and runs **once for each row** returned by the main query.
+*   Because of this repeated execution, it can be **slow on large datasets**.
+*   In many cases, the same logic can be rewritten using a `JOIN`, which executes more efficiently.
+*   Best avoided in high-volume production queries.
+
+### 42. UNION vs UNION ALL from a performance viewpoint
+
+*   **UNION:** Combines results and **removes duplicate rows**. Requires extra sorting/comparison — slower.
+*   **UNION ALL:** Appends results **without checking for duplicates** — faster and uses fewer resources.
+*   If datasets do not overlap, **always prefer `UNION ALL`**.
+
+```mermaid
+flowchart TD
+    Q1[Query 1 Results] --> U{UNION Type?}
+    Q2[Query 2 Results] --> U
+    U -->|UNION| SORT[Sort + Deduplicate\nExtra overhead ⚠️]
+    U -->|UNION ALL| FAST[Direct Append\nNo deduplication ✅]
+    SORT --> R1([Final Result\nNo duplicates])
+    FAST --> R2([Final Result\nMay have duplicates])
+    style U fill:#2c5282,stroke:#4a90e2,color:#fff
+    style SORT fill:#744210,stroke:#ed8936,color:#fff
+    style FAST fill:#276749,stroke:#48bb78,color:#fff
+    style R1 fill:#2d3748,stroke:#4a90e2,color:#fff
+    style R2 fill:#2d3748,stroke:#4a90e2,color:#fff
+```
+
+### 43. How to write Top-N per group queries
+
+*   Use **window functions** like `ROW_NUMBER()` with `PARTITION BY` to rank rows within each group, then filter the top N.
+*   Alternative: Use a correlated subquery comparing values within the same group (older databases).
+*   Window functions are clearer, faster, and easier to maintain in modern SQL.
+
+### 44. What is a CTE and how it differs from a subquery
+
+*   A **CTE** (Common Table Expression), written using the `WITH` clause, is a temporary named result set used within a query.
+*   Makes complex queries easier to **read and maintain** compared to nested subqueries.
+*   CTEs can be referenced **multiple times** in the same query.
+*   **Recursive CTEs** handle hierarchical data (e.g., employee reporting structures).
+
+### 45. What is a VIEW and when should you avoid it
+
+*   A **view** is a stored SQL query that behaves like a virtual table. It simplifies complex queries and provides consistent data access.
+*   Views **do not store data** — the underlying query runs every time the view is accessed.
+*   **Avoid views** for heavy calculations or frequently accessed large datasets, as they can hide inefficient SQL and make debugging harder.
+
+### 46. What is a materialized view and its trade-offs
+
+*   A **materialized view** stores the **actual result** of a query, making read operations very fast — useful for reporting and analytics.
+*   **Trade-offs:** Data can become **stale** and needs to be refreshed (manually or on a schedule). Refreshing can be expensive.
+*   Best used when fast reads are more important than real-time accuracy.
+
+---
+
+## Replication, Sharding & Distributed DB Concepts
+
+### 47. What is partitioning or sharding and when should you shard?
+
+*   **Sharding** splits data across multiple databases based on a key, distributing reads and writes to improve scalability.
+*   Used when a single database can no longer handle the load or data size.
+*   **Downsides:** Increases system complexity; cross-shard queries become harder.
+*   Teams usually shard **only after vertical scaling is no longer enough**.
+
+```mermaid
+flowchart TD
+    App[Application] --> Router[Shard Router / Proxy]
+    Router -->|shard_key mod 3 = 0| S1[(Shard 1\nUser IDs 0,3,6...)]
+    Router -->|shard_key mod 3 = 1| S2[(Shard 2\nUser IDs 1,4,7...)]
+    Router -->|shard_key mod 3 = 2| S3[(Shard 3\nUser IDs 2,5,8...)]
+    style App fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Router fill:#744210,stroke:#ed8936,color:#fff
+    style S1 fill:#1a365d,stroke:#4a90e2,color:#fff
+    style S2 fill:#1a365d,stroke:#4a90e2,color:#fff
+    style S3 fill:#1a365d,stroke:#4a90e2,color:#fff
+```
+
+### 48. What is replication lag and how should apps handle it?
+
+*   **Replication lag** is the delay between when data is written on the primary and when it appears on replicas.
+*   Apps must **not assume replicas are always up to date**.
+*   **Critical reads** should go to the primary database; **non-critical reads** can tolerate some delay.
+*   Handling lag correctly avoids user-facing inconsistencies.
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Primary
+    participant Replica
+    App->>Primary: WRITE (insert order)
+    Primary-->>App: OK
+    Note over Primary,Replica: Replication lag (ms to seconds)
+    App->>Replica: READ (get order)
+    Replica-->>App: ⚠️ Stale / Missing row
+    Note over App: Critical reads should go to Primary
+    App->>Primary: READ (critical)
+    Primary-->>App: ✅ Fresh data
+```
+
+### 49. Leader–follower vs multi-leader replication
+
+*   **Leader–Follower:** One node handles writes; others only replicate. Simpler and safer but has a **single write bottleneck**.
+*   **Multi-Leader:** Allows writes on multiple nodes. Improves write availability but introduces **conflict risks** and added complexity.
+*   Most teams prefer leader–follower unless multi-region writes are required.
+
+```mermaid
+flowchart LR
+    subgraph LF["Leader-Follower"]
+        LFW[Leader\nWrites Only] -->|Replicate| LFF1[Follower 1\nReads Only]
+        LFW -->|Replicate| LFF2[Follower 2\nReads Only]
+    end
+    subgraph ML["Multi-Leader"]
+        ML1[Leader A\nWrites + Reads] <-->|Sync + Conflict\nResolution| ML2[Leader B\nWrites + Reads]
+        ML1 -->|Replicate| MLF1[Follower]
+        ML2 -->|Replicate| MLF2[Follower]
+    end
+    style LF fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style ML fill:#3b1f4e,stroke:#ce93d8,color:#fff
+    style LFW fill:#276749,stroke:#48bb78,color:#fff
+    style ML1 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style ML2 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+```
+
+### 50. What is replication, and why do teams add read replicas?
+
+*   **Replication** means copying data from one database to one or more others.
+*   **Read replicas** scale read traffic — reads go to replicas while writes go to the primary.
+*   This reduces load on the main system and also helps with availability if the primary has issues.
+
+### 51. Hash-based vs range-based sharding
+
+*   **Hash-based:** Distributes data evenly using a hash function. Avoids hot spots but makes range queries harder.
+*   **Range-based:** Groups data by value ranges (e.g., date or ID). Good for range queries but can cause uneven load (hot partitions).
+*   The choice depends on **query patterns and workload characteristics**.
+
+```mermaid
+flowchart TD
+    D[(All Data)] --> S{Sharding Strategy}
+    S -->|Hash-based| H1["Shard 1\nhash(key) mod 3 = 0"]
+    S -->|Hash-based| H2["Shard 2\nhash(key) mod 3 = 1"]
+    S -->|Hash-based| H3["Shard 3\nhash(key) mod 3 = 2"]
+    S -->|Range-based| R1["Shard A\nID: 1 - 1000"]
+    S -->|Range-based| R2["Shard B\nID: 1001 - 2000"]
+    S -->|Range-based| R3["Shard C\nID: 2001+"]
+    style H1 fill:#276749,stroke:#48bb78,color:#fff
+    style H2 fill:#276749,stroke:#48bb78,color:#fff
+    style H3 fill:#276749,stroke:#48bb78,color:#fff
+    style R1 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R2 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R3 fill:#1565c0,stroke:#90caf9,color:#fff
+    style D fill:#2d3748,stroke:#4a90e2,color:#fff
+    style S fill:#2c5282,stroke:#4a90e2,color:#fff
+```
+
+### 52. What is a hot shard or partition and how do you mitigate it?
+
+*   A **hot shard** occurs when too much traffic hits a single shard due to skewed data or popular keys.
+*   **Mitigation:** Better shard keys, adding randomness, splitting hot shards, or caching hot data.
+*   Monitoring is key to early detection.
+
+### 53. What is eventual consistency in simple terms?
+
+*   **Eventual consistency** means data will become consistent **over time**, not immediately. Different nodes may temporarily show different values.
+*   The system prioritizes **availability and performance** over immediate accuracy.
+*   Works well for social feeds or analytics; **not suitable** for financial transactions.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant NodeA
+    participant NodeB
+    User->>NodeA: WRITE: likes = 100
+    NodeA-->>User: OK
+    User->>NodeB: READ: likes?
+    NodeB-->>User: 99 (stale — not yet synced)
+    Note over NodeA,NodeB: Replication in progress...
+    NodeA->>NodeB: Sync: likes = 100
+    User->>NodeB: READ: likes?
+    NodeB-->>User: ✅ 100 (eventually consistent)
+```
+
+### 54. Strong reads vs stale reads and when to use stale reads
+
+*   **Strong reads:** Always return the **latest committed data**, usually from the primary. Accurate but slower.
+*   **Stale reads:** May return **slightly outdated data** from replicas. Faster and more scalable.
+*   Stale reads are acceptable for non-critical data like dashboards. Choose based on **business correctness needs**.
+
+### 55. Why are distributed transactions hard and how do teams avoid them?
+
+*   Distributed transactions span multiple databases/services, can fail partially, and make error handling and recovery complex.
+*   **Two-phase commit** is slow and fragile at scale.
+*   Teams avoid distributed transactions by redesigning workflows using **event-driven systems** and **eventual consistency** as common alternatives.
+
+### 56. Designing a DB setup for multi-region high availability
+
+*   Multi-region setups replicate data across geographic locations; one region acts as the primary for writes, others serve reads and act as failover targets.
+*   **Key requirements:** Automated failover, health checks, and handling replication lag at the app level.
+*   The design balances **availability, consistency, and cost**.
+
+---
+
+## Storage, Logging & Recovery
+
+### 57. How do you design safe schema migrations with minimal downtime?
+
+*   Safe migrations **avoid locking tables** for long periods.
+*   Use **small, backward-compatible steps**: add new columns first, update code, then remove old columns later.
+*   **Test migrations on production-like data** before rollout to reduce downtime and rollback risk.
+
+```mermaid
+flowchart LR
+    S1["Step 1:\nAdd new column\n(nullable)"] --> S2["Step 2:\nDeploy new code\n(writes to both columns)"]
+    S2 --> S3["Step 3:\nBackfill old rows"]
+    S3 --> S4["Step 4:\nSwitch reads to new column"]
+    S4 --> S5["Step 5:\nDrop old column"]
+    style S1 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style S2 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style S3 fill:#744210,stroke:#ed8936,color:#fff
+    style S4 fill:#276749,stroke:#48bb78,color:#fff
+    style S5 fill:#742a2a,stroke:#f56565,color:#fff
+```
+
+### 58. What are RPO and RTO and why do interviewers ask them?
+
+*   **RPO (Recovery Point Objective):** How much **data loss** is acceptable in a failure.
+*   **RTO (Recovery Time Objective):** How long the **system can stay down**.
+*   These metrics connect database design to business requirements, showing you understand backups, recovery, and system reliability.
+
+```mermaid
+flowchart LR
+    Failure([Failure Event]) --> |Time to restore| RTO
+    LastBackup([Last Backup]) --> |Data loss window| RPO
+    RPO[RPO: Recovery Point Objective\nHow much data loss is OK?]
+    RTO[RTO: Recovery Time Objective\nHow long can system be down?]
+    RPO --> Backup[Drives backup frequency]
+    RTO --> HA[Drives HA and failover speed]
+    style Failure fill:#742a2a,stroke:#f56565,color:#fff
+    style LastBackup fill:#2c5282,stroke:#4a90e2,color:#fff
+    style RPO fill:#744210,stroke:#ed8936,color:#fff
+    style RTO fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style Backup fill:#276749,stroke:#48bb78,color:#fff
+    style HA fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 59. Difference between replication and backup
+
+*   **Replication:** Copies data **continuously** to another system for availability. Helps keep systems running but does **not** protect against bad data changes.
+*   **Backup:** **Snapshots** taken at intervals for recovery. Allows restoring old correct data.
+*   Both are needed but serve **different goals**.
+
+```mermaid
+flowchart LR
+    Primary[(Primary DB)] -->|Continuous Sync| Replica[(Replica\nHigh Availability)]
+    Primary -->|Periodic Snapshot| Backup[(Backup\nPoint-in-Time Recovery)]
+    Replica -->|Failover| Available([System Stays Up])
+    Backup -->|Restore| Recovered([Data Corruption Fixed])
+    style Primary fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Replica fill:#1a365d,stroke:#4a90e2,color:#fff
+    style Backup fill:#744210,stroke:#ed8936,color:#fff
+    style Available fill:#276749,stroke:#48bb78,color:#fff
+    style Recovered fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 60. What happens during crash recovery (high-level steps)?
+
+1.  The database reads the **transaction logs**.
+2.  It **redoes** committed transactions that were not written to disk.
+3.  It **undoes** uncommitted transactions to remove partial changes.
+4.  This restores the database to a **consistent state** automatically when the database restarts.
+
+```mermaid
+flowchart TD
+    Crash([System Crash]) --> Start[DB Restarts]
+    Start --> ReadLog[Read Transaction Logs]
+    ReadLog --> Redo[REDO Phase\nReapply committed transactions\nnot yet on disk]
+    Redo --> Undo[UNDO Phase\nRoll back uncommitted\ntransactions]
+    Undo --> Consistent([DB is Consistent ✅])
+    style Crash fill:#742a2a,stroke:#f56565,color:#fff
+    style Start fill:#2c5282,stroke:#4a90e2,color:#fff
+    style ReadLog fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Redo fill:#744210,stroke:#ed8936,color:#fff
+    style Undo fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style Consistent fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 61. Redo log vs undo log (conceptual difference)
+
+*   **Redo Log:** Records changes that need to be **reapplied** after a crash. Ensures **durability** of committed transactions.
+*   **Undo Log:** Stores old values so changes can be **rolled back**. Ensures **consistency** when transactions fail.
+*   Both work together to keep data correct.
+
+### 62. What are checkpoints and how do they reduce recovery time?
+
+*   **Checkpoints** flush modified data from memory to disk at regular intervals.
+*   After a crash, recovery starts from the **last checkpoint** instead of the beginning, significantly shortening startup time.
+*   Frequent checkpoints improve recovery speed but can add write overhead.
+
+```mermaid
+flowchart LR
+    T0([DB Start]) --> CP1[Checkpoint 1]
+    CP1 --> CP2[Checkpoint 2]
+    CP2 --> CP3[Checkpoint 3]
+    CP3 --> Crash([Crash ❌])
+    Crash --> Restart[DB Restarts]
+    Restart -->|Replay from CP3 only| CP3
+    CP3 --> Recovered([Consistent State ✅])
+    style T0 fill:#2d3748,stroke:#4a90e2,color:#fff
+    style CP1 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style CP2 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style CP3 fill:#276749,stroke:#48bb78,color:#fff
+    style Crash fill:#742a2a,stroke:#f56565,color:#fff
+    style Restart fill:#744210,stroke:#ed8936,color:#fff
+    style Recovered fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 63. What is Point-in-Time Recovery (PITR)?
+
+*   **PITR** allows restoring the database to an **exact moment in the past** using a full backup combined with transaction logs (e.g., WAL).
+*   Useful when data is **accidentally deleted or corrupted** — instead of restoring to the last backup, you recover just before the mistake.
+*   Essential for real-world failure recovery.
+
+### 64. Full vs incremental backups and when to use each
+
+*   **Full Backup:** Captures the entire database. Simple to restore but takes more time and storage.
+*   **Incremental Backup:** Stores only changes since the last backup. Faster and smaller but requires multiple steps to restore.
+*   Most production systems use a **mix of both** — full backups periodically, incremental backups frequently.
+
+### 65. Difference between logical backup and physical backup
+
+*   **Logical Backup:** Stores data as SQL statements or logical records. Portable across systems/versions; easier to inspect.
+*   **Physical Backup:** Copies raw database files as they are on disk. Much faster to restore but less flexible.
+*   Physical backups are better for **large databases**; logical backups are better for **portability**.
+
+### 66. What is Write-Ahead Logging (WAL) and why is it critical for durability?
+
+*   **WAL** means all changes are **first written to a log before being applied** to actual data files.
+*   Even if the system crashes, the database knows what changes were intended and can replay the log during recovery.
+*   WAL guarantees **committed data is not lost**. Without WAL, crashes could corrupt data permanently.
+
+```mermaid
+flowchart LR
+    TX([Transaction]) --> WL[Write to WAL Log]
+    WL --> DF[Apply to Data Files]
+    WL --> Commit([Commit Success])
+    Crash([Crash!]) --> Replay[Replay WAL on Restart]
+    Replay --> Recover([Data Recovered ✅])
+    style TX fill:#2d3748,stroke:#4a90e2,color:#fff
+    style WL fill:#744210,stroke:#ed8936,color:#fff
+    style DF fill:#2c5282,stroke:#4a90e2,color:#fff
+    style Commit fill:#276749,stroke:#48bb78,color:#fff
+    style Crash fill:#742a2a,stroke:#f56565,color:#fff
+    style Replay fill:#744210,stroke:#ed8936,color:#fff
+    style Recover fill:#276749,stroke:#48bb78,color:#fff
+```
+
+---
+
+## Transactions, Isolation & Concurrency
+
+### 67. When should you use a read-only transaction or snapshot?
+
+*   **Read-only transactions** are useful when you need **consistent data for reports** — they show data as it existed at a specific time.
+*   They prevent data changes from affecting long-running reads while **not blocking writers**.
+*   This improves both concurrency and consistency.
+
+```mermaid
+sequenceDiagram
+    participant Report
+    participant DB
+    participant Writer
+    Report->>DB: BEGIN READ ONLY (snapshot at T1)
+    Writer->>DB: UPDATE orders SET status='shipped'
+    DB-->>Writer: OK (new version created)
+    Report->>DB: SELECT * FROM orders
+    DB-->>Report: ✅ Returns data as of T1 (unaffected by write)
+    Report->>DB: COMMIT
+```
+
+### 68. What is a transaction and what does autocommit mean?
+
+*   A **transaction** is a set of database operations treated as **one logical unit** — all succeed together or are all rolled back.
+*   **Autocommit** means each statement is automatically committed as soon as it runs (every query is its own transaction).
+*   For multi-step operations, autocommit is usually **turned off**.
+
+```mermaid
+flowchart TD
+    subgraph AC["Autocommit ON"]
+        AS1[INSERT] --> AC1([Auto Commit ✅])
+        AS2[UPDATE] --> AC2([Auto Commit ✅])
+        AS3[DELETE] --> AC3([Auto Commit ✅])
+    end
+    subgraph TX["Explicit Transaction"]
+        BEGIN([BEGIN]) --> TS1[INSERT]
+        TS1 --> TS2[UPDATE]
+        TS2 --> TS3[DELETE]
+        TS3 --> TXOK([COMMIT ✅ All succeed])
+        TS2 -->|Error| TXFAIL([ROLLBACK ❌ All undone])
+    end
+    style AC fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style TX fill:#1a365d,stroke:#48bb78,color:#fff
+    style TXOK fill:#276749,stroke:#48bb78,color:#fff
+    style TXFAIL fill:#742a2a,stroke:#f56565,color:#fff
+```
+
+### 69. Explain the four isolation levels
+
+| Level | Behavior |
+|---|---|
+| **Read Uncommitted** | Can read uncommitted data; can give incorrect results |
+| **Read Committed** | Only committed data is visible; values can change between reads |
+| **Repeatable Read** | Rows already read won't change during the transaction |
+| **Serializable** | Strictest; behaves as if transactions run one by one |
+
+Higher isolation reduces **concurrency** but improves **consistency**.
+
+```mermaid
+flowchart LR
+    RU["Read Uncommitted\n❌ Dirty Reads possible"] --> RC
+    RC["Read Committed\n✅ No Dirty Reads\n❌ Non-Repeatable Reads"] --> RR
+    RR["Repeatable Read\n✅ No Non-Repeatable Reads\n❌ Phantom Reads possible"] --> SER
+    SER["Serializable\n✅ No Anomalies\n🐢 Lowest Concurrency"]
+    style RU fill:#742a2a,stroke:#f56565,color:#fff
+    style RC fill:#744210,stroke:#ed8936,color:#fff
+    style RR fill:#1565c0,stroke:#90caf9,color:#fff
+    style SER fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 70. Dirty read, non-repeatable read, and phantom read
+
+*   **Dirty Read:** Reads uncommitted data that may be rolled back.
+*   **Non-Repeatable Read:** Same row shows **different values** within a transaction (due to another transaction updating it).
+*   **Phantom Read:** New rows appear in **repeated queries** with the same condition (due to another transaction inserting rows).
+*   Isolation levels exist to control these problems.
+
+```mermaid
+sequenceDiagram
+    participant T1
+    participant DB
+    participant T2
+    Note over T1,T2: Dirty Read
+    T2->>DB: UPDATE balance = 0 (not committed)
+    T1->>DB: READ balance
+    DB-->>T1: 0 (dirty! T2 may rollback)
+    T2->>DB: ROLLBACK
+    Note over T1,T2: Non-Repeatable Read
+    T1->>DB: READ price = 100
+    T2->>DB: UPDATE price = 200; COMMIT
+    T1->>DB: READ price again
+    DB-->>T1: 200 (changed within T1!)
+    Note over T1,T2: Phantom Read
+    T1->>DB: SELECT WHERE age > 18 (5 rows)
+    T2->>DB: INSERT new adult row; COMMIT
+    T1->>DB: SELECT WHERE age > 18
+    DB-->>T1: 6 rows (phantom appeared!)
+```
+
+### 71. What is a lost update and how do you prevent it?
+
+*   A **lost update** happens when two transactions update the same data based on an old value — the second update overwrites the first.
+*   **Prevention:** Use proper isolation levels, version checks, or **optimistic locking**.
+
+```mermaid
+sequenceDiagram
+    participant T1
+    participant DB
+    participant T2
+    T1->>DB: READ stock = 10
+    T2->>DB: READ stock = 10
+    T1->>DB: UPDATE stock = 10 - 3 = 7; COMMIT
+    T2->>DB: UPDATE stock = 10 - 5 = 5; COMMIT
+    Note over DB: ❌ Lost Update! T1's deduction overwritten.\nActual: should be 2, result is 5.
+```
+
+### 72. Optimistic locking vs pessimistic locking
+
+*   **Optimistic Locking:** Assumes conflicts are rare. Checks for changes before committing (via a version number or timestamp). Suits **read-heavy systems**.
+*   **Pessimistic Locking:** Locks data upfront to block other transactions. Avoids conflicts but **reduces concurrency**.
+
+```mermaid
+flowchart TD
+    subgraph OPT["Optimistic Locking"]
+        OR[Read row + version=5] --> OW["Modify data"]
+        OW --> OC{"version still = 5?"}
+        OC -->|Yes| OS([Commit ✅])
+        OC -->|No| OF([Retry / Conflict ❌])
+    end
+    subgraph PESS["Pessimistic Locking"]
+        PL[Acquire Lock] --> PR[Read row]
+        PR --> PW[Modify data]
+        PW --> PC([Commit + Release Lock ✅])
+        PL -->|Others wait| PW2[Other T waits...]
+    end
+    style OPT fill:#1e3a5f,stroke:#4a90e2,color:#fff
+    style PESS fill:#1a365d,stroke:#4a90e2,color:#fff
+    style OS fill:#276749,stroke:#48bb78,color:#fff
+    style OF fill:#742a2a,stroke:#f56565,color:#fff
+    style PC fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 73. What is MVCC and how does it improve read concurrency?
+
+*   **MVCC (Multi-Version Concurrency Control)** allows multiple versions of data to exist simultaneously.
+*   **Readers** see a consistent snapshot without **blocking writers**. Writers create new versions instead of modifying existing rows.
+*   This greatly improves performance under heavy read load. Old versions are cleaned up later.
+
+```mermaid
+flowchart LR
+    T1([Reader T1\nat snapshot T=100]) --> V1["Reads row version\nv1: balance=500"]
+    T2([Writer T2]) --> V2["Creates new version\nv2: balance=450"]
+    V2 --> DB[(DB stores both versions\nv1 + v2)]
+    V1 --> DB
+    DB --> GC[Garbage Collector\ncleans old versions later]
+    style T1 fill:#276749,stroke:#48bb78,color:#fff
+    style T2 fill:#744210,stroke:#ed8936,color:#fff
+    style V1 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style V2 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style GC fill:#742a2a,stroke:#f56565,color:#fff
+```
+
+### 74. What is a deadlock and how do databases resolve it?
+
+*   A **deadlock** happens when transactions **wait on each other's locks indefinitely** — each holds a lock the other needs.
+*   Databases detect deadlocks by checking for **wait cycles** and resolve them by **rolling back one transaction**.
+*   The rolled-back transaction can then be retried.
+
+```mermaid
+flowchart LR
+    T1([Transaction T1]) -->|Holds Lock on| RA[(Row A)]
+    T1 -->|Waiting for| RB
+    T2([Transaction T2]) -->|Holds Lock on| RB[(Row B)]
+    T2 -->|Waiting for| RA
+    RA -.->|Blocked| T2
+    RB -.->|Blocked| T1
+    DETECT[DB Detects\nWait Cycle] --> KILL[Rolls back T2]
+    KILL --> RESOLVE([T1 Completes ✅])
+    style T1 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style T2 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style DETECT fill:#744210,stroke:#ed8936,color:#fff
+    style KILL fill:#742a2a,stroke:#f56565,color:#fff
+    style RESOLVE fill:#276749,stroke:#48bb78,color:#fff
+```
+
+### 75. What is lock escalation and why can it slow systems down?
+
+*   **Lock escalation** replaces many small locks with a larger lock (e.g., row-level locks become a table-level lock).
+*   This reduces lock overhead but **blocks more queries**, causing system-wide slowdowns under heavy load.
+
+```mermaid
+flowchart TD
+    RL1[Row Lock 1] --> TL
+    RL2[Row Lock 2] --> TL
+    RL3[Row Lock 3] --> TL
+    RL4["... N Row Locks"] --> TL
+    TL["DB Escalates to\nTable-Level Lock ⚠️"]
+    TL --> Block["All other queries\nblocked on this table"]
+    style RL1 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style RL2 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style RL3 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style RL4 fill:#2c5282,stroke:#4a90e2,color:#fff
+    style TL fill:#744210,stroke:#ed8936,color:#fff
+    style Block fill:#742a2a,stroke:#f56565,color:#fff
+```
+
+### 76. What is write skew and why is it tricky?
+
+*   **Write skew** occurs when two transactions read the same data and update **different rows**. Each transaction sees valid data, but the final result **breaks a rule**.
+*   This can happen even under **Repeatable Read** isolation, because the rows aren't directly updated — locks don't prevent it.
+*   **Serializable** isolation is usually required to prevent write skew.
+
+```mermaid
+sequenceDiagram
+    participant T1
+    participant DB
+    participant T2
+    Note over T1,T2: Rule: At least 1 doctor on-call
+    T1->>DB: READ on-call doctors = [Dr.A, Dr.B]
+    T2->>DB: READ on-call doctors = [Dr.A, Dr.B]
+    T1->>DB: UPDATE Dr.A = off-call (sees 2, thinks safe)
+    T2->>DB: UPDATE Dr.B = off-call (sees 2, thinks safe)
+    Note over DB: ❌ Write Skew! No doctors on-call.\nRule violated despite both transactions seeming valid.
+    Note over DB: ✅ Fix: Use SERIALIZABLE isolation.
+```
+
+
 ## Complete DBMS Roadmap
 
 ```mermaid
 flowchart TD
-    Start([DBMS Subject]) --> Fundamentals
-    
-    Fundamentals[DBMS Fundamentals] --> F1[Introduction to DBMS]
-    Fundamentals --> F2[DBMS vs RDBMS]
-    Fundamentals --> F3[Database Definition]
-    Fundamentals --> F4[File Systems vs DBMS]
-    Fundamentals --> F5[DBMS Advantages]
-    
-    F1 --> Core
-    F2 --> Core
-    F3 --> Core
-    F4 --> Core
-    F5 --> Core
-    
-    Core[Core Database Concepts] --> C1[Database Structure]
-    Core --> C2[Tables, Rows, Columns]
-    Core --> C3[NULL Values vs Zero vs Blank]
-    Core --> C4[Data Abstraction Levels]
-    Core --> C5[Intension vs Extension]
-    
-    C1 --> Languages
-    C2 --> Languages
-    C3 --> Languages
-    C4 --> Languages
-    C5 --> Languages
-    
-    Languages[Database Languages] --> L1[DDL - Data Definition Language]
-    Languages --> L2[DML - Data Manipulation Language]
-    Languages --> L3[DCL - Data Control Language]
-    Languages --> L4[TCL - Transaction Control Language]
-    
-    L1 --> Transactions
-    L2 --> Transactions
-    L3 --> Transactions
-    L4 --> Transactions
-    
-    Transactions[Transaction Management] --> T1[ACID Properties]
-    Transactions --> T2[Atomicity]
-    Transactions --> T3[Consistency]
-    Transactions --> T4[Isolation]
-    Transactions --> T5[Durability]
-    Transactions --> T6[Locks - Shared vs Exclusive]
-    
-    T1 --> Modeling
-    T2 --> Modeling
-    T3 --> Modeling
-    T4 --> Modeling
-    T5 --> Modeling
-    T6 --> Modeling
-    
-    Modeling[Data Modeling] --> M1[Entity-Relationship Model]
-    Modeling --> M2[Entity, Entity Type, Entity Set]
-    Modeling --> M3[Relationship Types]
-    Modeling --> M4[One-to-One]
-    Modeling --> M5[One-to-Many]
-    Modeling --> M6[Many-to-Many]
-    Modeling --> M7[Self-Referencing]
-    
-    M1 --> Keys
-    M2 --> Keys
-    M3 --> Keys
-    M4 --> Keys
-    M5 --> Keys
-    M6 --> Keys
-    M7 --> Keys
-    
-    Keys[Database Keys] --> K1[Super Key]
-    Keys --> K2[Candidate Key]
-    Keys --> K3[Primary Key]
-    Keys --> K4[Foreign Key]
-    Keys --> K5[Unique Key]
-    Keys --> K6[Alternate Key]
-    Keys --> K7[Composite Key]
-    
-    K1 --> Normalization
-    K2 --> Normalization
-    K3 --> Normalization
-    K4 --> Normalization
-    K5 --> Normalization
-    K6 --> Normalization
-    K7 --> Normalization
-    
-    Normalization[Normalization] --> N1[Normalization vs Denormalization]
-    Normalization --> N2[First Normal Form - 1NF]
-    Normalization --> N3[Second Normal Form - 2NF]
-    Normalization --> N4[Third Normal Form - 3NF]
-    Normalization --> N5[Boyce-Codd Normal Form - BCNF]
-    
-    N1 --> Operations
-    N2 --> Operations
-    N3 --> Operations
-    N4 --> Operations
-    N5 --> Operations
-    
-    Operations[Database Operations] --> O1[DELETE Command]
-    Operations --> O2[TRUNCATE Command]
-    Operations --> O3[Data Manipulation]
-    
-    O1 --> Architecture
-    O2 --> Architecture
-    O3 --> Architecture
-    
-    Architecture[Database Architecture] --> A1[2-Tier Architecture]
-    Architecture --> A2[3-Tier Architecture]
-    Architecture --> A3[Client-Server Model]
-    
-    A1 --> Advanced
-    A2 --> Advanced
-    A3 --> Advanced
-    
-    Advanced[Advanced Topics] --> AD1[Data Warehousing]
-    Advanced --> AD2[ETL Process]
-    Advanced --> AD3[Data Analytics]
-    
-    AD1 --> End([Mastery])
-    AD2 --> End
-    AD3 --> End
-    
-    style Start fill:#6a4c93,stroke:#ffffff,color:#ffffff,stroke-width:3px
-    style Fundamentals fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Core fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Languages fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Transactions fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Modeling fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Keys fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Normalization fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Operations fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Architecture fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style Advanced fill:#7b1fa2,stroke:#ffffff,color:#ffffff,stroke-width:2px
-    style End fill:#6a4c93,stroke:#ffffff,color:#ffffff,stroke-width:3px
-    
-    style F1 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style F2 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style F3 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style F4 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style F5 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    
-    style C1 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style C2 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style C3 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style C4 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    style C5 fill:#9c27b0,stroke:#ffffff,color:#ffffff
-    
-    style L1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style L2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style L3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style L4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    
-    style T1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style T2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style T3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style T4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style T5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style T6 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    
-    style M1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style M2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style M3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style M4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style M5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style M6 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style M7 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    
-    style K1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style K2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style K3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style K4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style K5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style K6 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style K7 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    
-    style N1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style N2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style N3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style N4 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style N5 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    
-    style O1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style O2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style O3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    
-    style A1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style A2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style A3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    
-    style AD1 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style AD2 fill:#ba68c8,stroke:#ffffff,color:#ffffff
-    style AD3 fill:#ba68c8,stroke:#ffffff,color:#ffffff
+    Start([DBMS Mastery]) --> Basic
+
+    %% BASIC
+    Basic["🟣 Basic DBMS\nQ1-7"] --> B1["DBMS & Utility\nRDBMS Examples"]
+    Basic --> B2["What is a Database?"]
+    Basic --> B3["File-Based System Issues"]
+    Basic --> B4["Advantages of DBMS"]
+    Basic --> B5["DDL / DML / DCL / TCL"]
+    Basic --> B6["ACID Properties"]
+    Basic --> B7["NULL vs Zero vs Blank"]
+    Basic --> Intermediate
+
+    %% INTERMEDIATE
+    Intermediate["🔵 Intermediate DBMS\nQ8-15"] --> I1["Data Warehousing & ETL"]
+    Intermediate --> I2["Data Abstraction Levels\nPhysical / Logical / View"]
+    Intermediate --> I3["ER Model\nEntity / Entity Type / Set"]
+    Intermediate --> I4["Relationship Types\n1-1 / 1-N / N-N / Self"]
+    Intermediate --> I5["Intension vs Extension"]
+    Intermediate --> I6["DELETE vs TRUNCATE"]
+    Intermediate --> I7["Locks\nShared vs Exclusive"]
+    Intermediate --> I8["Normalization vs Denormalization"]
+    Intermediate --> Advanced
+
+    %% ADVANCED
+    Advanced["🟠 Advanced DBMS\nQ16-18"] --> AD1["Normalization Forms\n1NF / 2NF / 3NF / BCNF"]
+    Advanced --> AD2["Types of Keys\nPK / FK / CK / SK / UK / AK"]
+    Advanced --> AD3["2-Tier vs 3-Tier Architecture"]
+    Advanced --> Indexing
+
+    %% INDEXING & QUERY OPTIMIZATION
+    Indexing["🟡 Indexing & Query Opt\nQ19-28"] --> IX1["Selectivity & Cardinality"]
+    Indexing --> IX2["Index Basics\nRead vs Write Trade-off"]
+    Indexing --> IX3["Clustered vs Non-Clustered"]
+    Indexing --> IX4["When Queries Skip Indexes"]
+    Indexing --> IX5["Composite Index\nLeftmost Prefix Rule"]
+    Indexing --> IX6["Covering Index"]
+    Indexing --> IX7["Execution Plans\nSeek vs Scan"]
+    Indexing --> IX8["Index Fragmentation & Bloat"]
+    Indexing --> IX9["Slow Query Debugging Flow"]
+    Indexing --> Security
+
+    %% SECURITY & GOVERNANCE
+    Security["🔴 Security & Governance\nQ29-37"] --> SE1["Risk of Superuser Permissions"]
+    Security --> SE2["SQL Injection & Parameterized Queries"]
+    Security --> SE3["Authentication vs Authorization"]
+    Security --> SE4["Row-Level Security"]
+    Security --> SE5["Encryption at Rest vs in Transit"]
+    Security --> SE6["Safe Credential Storage"]
+    Security --> SE7["Least Privilege"]
+    Security --> SE8["Auditing & Logging"]
+    Security --> SE9["Protecting PII"]
+    Security --> SQL
+
+    %% SQL & QUERYING
+    SQL["🟢 SQL & Querying\nQ38-46"] --> SQ1["WHERE vs HAVING"]
+    SQL --> SQ2["INNER JOIN vs LEFT JOIN"]
+    SQL --> SQ3["Duplicate Rows After JOIN"]
+    SQL --> SQ4["Correlated Subquery vs JOIN"]
+    SQL --> SQ5["UNION vs UNION ALL"]
+    SQL --> SQ6["Top-N per Group & Row Number"]
+    SQL --> SQ7["CTE vs Subquery"]
+    SQL --> SQ8["VIEW - When to Avoid"]
+    SQL --> SQ9["Materialized View Trade-offs"]
+    SQL --> Replication
+
+    %% REPLICATION, SHARDING & DISTRIBUTED
+    Replication["🔵 Replication, Sharding\n& Distributed Q47-56"] --> R1["Sharding & When to Shard"]
+    Replication --> R2["Replication Lag & App Handling"]
+    Replication --> R3["Leader-Follower vs Multi-Leader"]
+    Replication --> R4["Read Replicas & Scaling"]
+    Replication --> R5["Hash vs Range Sharding"]
+    Replication --> R6["Hot Shard Mitigation"]
+    Replication --> R7["Eventual Consistency"]
+    Replication --> R8["Strong vs Stale Reads"]
+    Replication --> R9["Distributed Transactions"]
+    Replication --> R10["Multi-Region High Availability"]
+    Replication --> Storage
+
+    %% STORAGE, LOGGING & RECOVERY
+    Storage["🟠 Storage, Logging\n& Recovery Q57-66"] --> ST1["Safe Schema Migrations"]
+    Storage --> ST2["RPO & RTO"]
+    Storage --> ST3["Replication vs Backup"]
+    Storage --> ST4["Crash Recovery Steps"]
+    Storage --> ST5["Redo Log vs Undo Log"]
+    Storage --> ST6["Checkpoints"]
+    Storage --> ST7["Point-in-Time Recovery PITR"]
+    Storage --> ST8["Full vs Incremental Backup"]
+    Storage --> ST9["Logical vs Physical Backup"]
+    Storage --> ST10["Write-Ahead Logging WAL"]
+    Storage --> Concurrency
+
+    %% TRANSACTIONS, ISOLATION & CONCURRENCY
+    Concurrency["🟣 Transactions, Isolation\n& Concurrency Q67-76"] --> CO1["Read-Only Transactions & Snapshots"]
+    Concurrency --> CO2["Transactions & Autocommit"]
+    Concurrency --> CO3["Four Isolation Levels"]
+    Concurrency --> CO4["Dirty / Non-Repeatable / Phantom Reads"]
+    Concurrency --> CO5["Lost Update Prevention"]
+    Concurrency --> CO6["Optimistic vs Pessimistic Locking"]
+    Concurrency --> CO7["MVCC & Read Concurrency"]
+    Concurrency --> CO8["Deadlocks & Resolution"]
+    Concurrency --> CO9["Lock Escalation"]
+    Concurrency --> CO10["Write Skew"]
+    Concurrency --> End(["Mastery"])
+
+    %% STYLES - Section nodes
+    style Start fill:#4a148c,stroke:#ce93d8,color:#fff,stroke-width:3px
+    style End fill:#1b5e20,stroke:#a5d6a7,color:#fff,stroke-width:3px
+    style Basic fill:#6a1b9a,stroke:#ce93d8,color:#fff,stroke-width:2px
+    style Intermediate fill:#1565c0,stroke:#90caf9,color:#fff,stroke-width:2px
+    style Advanced fill:#e65100,stroke:#ffcc80,color:#fff,stroke-width:2px
+    style Indexing fill:#f57f17,stroke:#fff9c4,color:#000,stroke-width:2px
+    style Security fill:#b71c1c,stroke:#ef9a9a,color:#fff,stroke-width:2px
+    style SQL fill:#1b5e20,stroke:#a5d6a7,color:#fff,stroke-width:2px
+    style Replication fill:#0d47a1,stroke:#90caf9,color:#fff,stroke-width:2px
+    style Storage fill:#bf360c,stroke:#ffccbc,color:#fff,stroke-width:2px
+    style Concurrency fill:#4a148c,stroke:#ce93d8,color:#fff,stroke-width:2px
+
+    %% STYLES - Basic leaf nodes
+    style B1 fill:#8e24aa,stroke:#ce93d8,color:#fff
+    style B2 fill:#8e24aa,stroke:#ce93d8,color:#fff
+    style B3 fill:#8e24aa,stroke:#ce93d8,color:#fff
+    style B4 fill:#8e24aa,stroke:#ce93d8,color:#fff
+    style B5 fill:#8e24aa,stroke:#ce93d8,color:#fff
+    style B6 fill:#8e24aa,stroke:#ce93d8,color:#fff
+    style B7 fill:#8e24aa,stroke:#ce93d8,color:#fff
+
+    %% STYLES - Intermediate leaf nodes
+    style I1 fill:#1976d2,stroke:#90caf9,color:#fff
+    style I2 fill:#1976d2,stroke:#90caf9,color:#fff
+    style I3 fill:#1976d2,stroke:#90caf9,color:#fff
+    style I4 fill:#1976d2,stroke:#90caf9,color:#fff
+    style I5 fill:#1976d2,stroke:#90caf9,color:#fff
+    style I6 fill:#1976d2,stroke:#90caf9,color:#fff
+    style I7 fill:#1976d2,stroke:#90caf9,color:#fff
+    style I8 fill:#1976d2,stroke:#90caf9,color:#fff
+
+    %% STYLES - Advanced leaf nodes
+    style AD1 fill:#ef6c00,stroke:#ffcc80,color:#fff
+    style AD2 fill:#ef6c00,stroke:#ffcc80,color:#fff
+    style AD3 fill:#ef6c00,stroke:#ffcc80,color:#fff
+
+    %% STYLES - Indexing leaf nodes
+    style IX1 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX2 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX3 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX4 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX5 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX6 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX7 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX8 fill:#f9a825,stroke:#fff9c4,color:#000
+    style IX9 fill:#f9a825,stroke:#fff9c4,color:#000
+
+    %% STYLES - Security leaf nodes
+    style SE1 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE2 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE3 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE4 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE5 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE6 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE7 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE8 fill:#c62828,stroke:#ef9a9a,color:#fff
+    style SE9 fill:#c62828,stroke:#ef9a9a,color:#fff
+
+    %% STYLES - SQL leaf nodes
+    style SQ1 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ2 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ3 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ4 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ5 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ6 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ7 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ8 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+    style SQ9 fill:#2e7d32,stroke:#a5d6a7,color:#fff
+
+    %% STYLES - Replication leaf nodes
+    style R1 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R2 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R3 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R4 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R5 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R6 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R7 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R8 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R9 fill:#1565c0,stroke:#90caf9,color:#fff
+    style R10 fill:#1565c0,stroke:#90caf9,color:#fff
+
+    %% STYLES - Storage leaf nodes
+    style ST1 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST2 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST3 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST4 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST5 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST6 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST7 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST8 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST9 fill:#d84315,stroke:#ffccbc,color:#fff
+    style ST10 fill:#d84315,stroke:#ffccbc,color:#fff
+
+    %% STYLES - Concurrency leaf nodes
+    style CO1 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO2 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO3 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO4 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO5 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO6 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO7 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO8 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO9 fill:#6a1b9a,stroke:#ce93d8,color:#fff
+    style CO10 fill:#6a1b9a,stroke:#ce93d8,color:#fff
 ```
